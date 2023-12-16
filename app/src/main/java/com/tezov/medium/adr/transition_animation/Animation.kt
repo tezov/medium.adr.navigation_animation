@@ -18,13 +18,12 @@ class Content(
     val animationConfig: NavigationAnimation.Config,
     internal val content: @Composable BoxScope.() -> Unit
 ) {
-    lateinit var modifierAnimation: NavigationAnimation.ModifierAnimation
+    var modifierAnimation: NavigationAnimation.ModifierAnimation
+        = NavigationAnimation.None()
 
     @Composable
     fun compose() {
-        Box(
-            modifier = modifierAnimation
-        ) {
+        Box(modifier = modifierAnimation) {
             content()
         }
     }
@@ -53,17 +52,17 @@ private class ScreenTransitionAnimation(
     lateinit var currentScreenId:String
     lateinit var showId:String
 
-    val lastEntry =  when {
-        !isIdle && isNavigatingBack -> {
-            screens.first { it.id == showId }
-        }
-        else ->  screens.first { it.id == currentScreenId }
-    }
-    val priorEntry = when {
+    val lastEntry get() =  when {
         !isIdle && isNavigatingBack -> {
             screens.first { it.id == currentScreenId }
         }
         else ->  screens.first { it.id == showId }
+    }
+    val priorEntry get() = when {
+        !isIdle && isNavigatingBack -> {
+            screens.first { it.id == showId }
+        }
+        else -> screens.first { it.id == currentScreenId }
     }
 
     @Composable
@@ -71,33 +70,52 @@ private class ScreenTransitionAnimation(
         showId:String,
         isNavigatingBack:Boolean
     ) {
+        this.currentScreenId = remember { showId }
+        this.showId = showId
+
         this.isIdle = currentScreenId == showId
         this.isNavigatingBack = isNavigatingBack
-        this.showId = showId
-        this.currentScreenId = remember { showId }
 
-        updateTransition()
+        println(">>: *****************************")
+        val priorEntry = this.priorEntry.also {
+            println(">>: ${it.id}")
+        }
+        val lastEntry = this.lastEntry.also {
+            println(">>: ${it.id}")
+        }
+
+        updateTransition(
+            lastEntry = lastEntry,
+            priorEntry = priorEntry
+        )
 
         val stateHolder = rememberSaveableStateHolder()
-        screens.forEach {
+        listOf(priorEntry, lastEntry).distinctBy { it.id }.forEach {
+            println(">>: show ${it.id}")
             key(it.id) {
                 stateHolder.SaveableStateProvider(it.id) {
-                    it.content
+                    it.compose()
                 }
             }
         }
     }
 
     @Composable
-    private fun updateTransition() {
+    private fun updateTransition(
+        lastEntry: Content,
+        priorEntry: Content
+    ) {
         val coroutineScope = rememberCoroutineScope()
         val transition = updateAnimationProgress()
+
+        if(lastEntry == priorEntry) return
 
         val animationConfigResolved = if (isNavigatingBack) {
             priorEntry.animationConfig
         } else {
             lastEntry.animationConfig
         }
+
         priorEntry.updateTransition(
             transition = transition,
             animationConfig = animationConfigResolved,
@@ -110,8 +128,11 @@ private class ScreenTransitionAnimation(
             directionContent = NavigationAnimation.Direction.Content.Enter,
             isNavigatingBack = isNavigatingBack,
         )
+
         if (transition.isIdle) {
             transition.collect.once(coroutineScope) {
+                priorEntry.modifierAnimation = NavigationAnimation.None()
+                lastEntry.modifierAnimation = NavigationAnimation.None()
                 currentScreenId = showId
             }
         }
