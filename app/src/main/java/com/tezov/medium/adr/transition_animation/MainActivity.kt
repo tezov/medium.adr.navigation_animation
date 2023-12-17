@@ -8,16 +8,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
-import androidx.compose.ui.tooling.preview.Preview
-import com.tezov.medium.adr.transition_animation.NavigationAnimation.Config.*
 import com.tezov.medium.adr.transition_animation.ui.theme.Transition_animationTheme
 import kotlinx.coroutines.delay
 
@@ -42,11 +38,13 @@ class MainActivity : ComponentActivity() {
 fun Screens() {
     val screens = remember {
         listOf(
-            Content(
+            AnimationContent(
                 id = "screen_A",
-                animationConfig = NavigationAnimation.Config {
-
-                },
+                animationConfig = Animations.Config(
+                    default = Animations.Config.Type.SlideHorizontal(
+                        duration_ms = 500
+                    )
+                ),
                 content = {
                     Box(modifier = Modifier
                         .fillMaxSize()
@@ -55,15 +53,47 @@ fun Screens() {
                     }
                 }
             ),
-            Content(
+            AnimationContent(
                 id = "screen_B",
-                animationConfig = NavigationAnimation.Config {
-
-                },
+                animationConfig = Animations.Config(
+                    default = Animations.Config.Type.SlideHorizontal(
+                        duration_ms = 500
+                    )
+                ),
                 content = {
                     Box(modifier = Modifier
                         .fillMaxSize()
                         .background(Color.Red)) {
+
+                    }
+                }
+            ),
+            AnimationContent(
+                id = "screen_C",
+                animationConfig = Animations.Config(
+                    default = Animations.Config.Type.SlideHorizontal(
+                        duration_ms = 500
+                    )
+                ),
+                content = {
+                    Box(modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Gray)) {
+
+                    }
+                }
+            ),
+            AnimationContent(
+                id = "screen_D",
+                animationConfig = Animations.Config(
+                    default = Animations.Config.Type.SlideHorizontal(
+                        duration_ms = 500
+                    )
+                ),
+                content = {
+                    Box(modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Green)) {
 
                     }
                 }
@@ -78,15 +108,39 @@ fun Screens() {
         mutableStateOf(false)
     }
 
-    animate(
+    AnimateNavigation(
         screens = screens,
         showId = showId.value,
         isNavigatingBack = isNavigatingBack.value
     )
 
     LaunchedEffect(Unit) {
-        delay(1000)
-        showId.value = "screen_B"
+        repeat(10) {
+            delay(2000)
+            isNavigatingBack.value = false
+            showId.value = "screen_B"
+
+            delay(2000)
+            isNavigatingBack.value = false
+            showId.value = "screen_C"
+
+            delay(2000)
+            isNavigatingBack.value = false
+            showId.value = "screen_D"
+
+            delay(2000)
+            isNavigatingBack.value = true
+            showId.value = "screen_C"
+
+            delay(2000)
+            isNavigatingBack.value = true
+            showId.value = "screen_B"
+
+            delay(2000)
+            isNavigatingBack.value = true
+            showId.value = "screen_A"
+        }
+
     }
 
 }

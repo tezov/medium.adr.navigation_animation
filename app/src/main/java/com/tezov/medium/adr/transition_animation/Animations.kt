@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.unit.dp
 
-object NavigationAnimation {
+object Animations {
 
     class Config private constructor(default: Type) {
 
@@ -28,7 +28,7 @@ object NavigationAnimation {
             object None : Type()
 
             class Fade(
-                val duration_ms: Int = NavigationAnimation.Fade.DURATION_ms
+                val duration_ms: Int = Animations.Fade.DURATION_ms
             ) : Type()
 
             class SlideHorizontal(
@@ -73,7 +73,7 @@ object NavigationAnimation {
 
     abstract class ModifierAnimation : Modifier {
         private val modifier = Modifier.composed {
-            animate(Size(200f, 200f))
+            animate(Size(400f, 200f))
         }
 
         @Composable
