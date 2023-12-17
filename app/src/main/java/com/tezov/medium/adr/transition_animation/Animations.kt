@@ -2,8 +2,13 @@ package com.tezov.medium.adr.transition_animation
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
@@ -12,6 +17,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 
 object Animations {
@@ -73,7 +80,19 @@ object Animations {
 
     abstract class ModifierAnimation : Modifier {
         private val modifier = Modifier.composed {
-            animate(Size(400f, 200f))
+            val size = remember { mutableStateOf(Size.Unspecified) }
+            val density = LocalDensity.current.density
+            onGloballyPositioned {
+                size.value = Size(
+                    width = (it.size.width / density),
+                    height = (it.size.height / density)
+                )
+            }.composed {
+                if(size.value != Size.Unspecified){
+                    animate(size.value)
+                }
+                else this
+            }
         }
 
         @Composable

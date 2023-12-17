@@ -42,7 +42,8 @@ fun Screens() {
                 id = "screen_A",
                 animationConfig = Animations.Config(
                     default = Animations.Config.Type.SlideHorizontal(
-                        duration_ms = 500
+                        duration_ms = 500,
+                        entrance = Animations.Slide.Horizontal.Entrance.FromEnd
                     )
                 ),
                 content = {
@@ -57,7 +58,8 @@ fun Screens() {
                 id = "screen_B",
                 animationConfig = Animations.Config(
                     default = Animations.Config.Type.SlideHorizontal(
-                        duration_ms = 500
+                        duration_ms = 500,
+                        entrance = Animations.Slide.Horizontal.Entrance.FromStart
                     )
                 ),
                 content = {
@@ -71,8 +73,9 @@ fun Screens() {
             AnimationContent(
                 id = "screen_C",
                 animationConfig = Animations.Config(
-                    default = Animations.Config.Type.SlideHorizontal(
-                        duration_ms = 500
+                    default = Animations.Config.Type.SlideVertical(
+                        duration_ms = 500,
+                        entrance = Animations.Slide.Vertical.Entrance.FromBottom
                     )
                 ),
                 content = {
@@ -86,14 +89,30 @@ fun Screens() {
             AnimationContent(
                 id = "screen_D",
                 animationConfig = Animations.Config(
-                    default = Animations.Config.Type.SlideHorizontal(
-                        duration_ms = 500
+                    default = Animations.Config.Type.SlideVertical(
+                        duration_ms = 500,
+                        entrance = Animations.Slide.Vertical.Entrance.FromTop
                     )
                 ),
                 content = {
                     Box(modifier = Modifier
                         .fillMaxSize()
                         .background(Color.Green)) {
+
+                    }
+                }
+            ),
+            AnimationContent(
+                id = "screen_E",
+                animationConfig = Animations.Config(
+                    default = Animations.Config.Type.Fade(
+                        duration_ms = 500
+                    )
+                ),
+                content = {
+                    Box(modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Yellow)) {
 
                     }
                 }
@@ -126,6 +145,14 @@ fun Screens() {
 
             delay(2000)
             isNavigatingBack.value = false
+            showId.value = "screen_D"
+
+            delay(2000)
+            isNavigatingBack.value = false
+            showId.value = "screen_E"
+
+            delay(2000)
+            isNavigatingBack.value = true
             showId.value = "screen_D"
 
             delay(2000)
