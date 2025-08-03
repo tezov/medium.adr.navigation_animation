@@ -14,7 +14,7 @@ object Notifier {
         extraBufferCapacity: Int = 1,
         onBufferOverflow: BufferOverflow = BufferOverflow.DROP_OLDEST
     ) {
-        internal val flow = MutableSharedFlow<T>(
+        private val flow = MutableSharedFlow<T>(
             replay = replay,
             extraBufferCapacity = extraBufferCapacity,
             onBufferOverflow = onBufferOverflow
@@ -24,18 +24,18 @@ object Notifier {
 
         suspend fun emit(event: T) = flow.emit(event)
 
-        val createCollector get() = Collector(this)
+        val createCollector get() = Collector(flow)
     }
 
     class Collector<T:Any>(
-        private val emitter: Emitter<T>
+        private val flow: Flow<T>,
     ) {
 
-        fun once(scope: CoroutineScope, block: suspend (T) -> Unit) = emitter.flow.collectOnce(scope, block)
+        fun once(scope: CoroutineScope, block: suspend (T) -> Unit) = flow.collectOnce(scope, block)
 
-        fun forever(scope: CoroutineScope, block: suspend (T) -> Unit) = emitter.flow.collectForever(scope, block)
+        fun forever(scope: CoroutineScope, block: suspend (T) -> Unit) = flow.collectForever(scope, block)
 
-        fun until(scope: CoroutineScope, block: suspend (T) -> Boolean) = emitter.flow.collectUntil(scope, block)
+        fun until(scope: CoroutineScope, block: suspend (T) -> Boolean) = flow.collectUntil(scope, block)
 
     }
 
